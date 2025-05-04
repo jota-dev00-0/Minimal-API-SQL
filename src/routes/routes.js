@@ -73,7 +73,16 @@ export default async function authRoutes(fastify, options) {
       }
   });
 
-  fastify.get("/users", async (request, reply) => {
+  fastify.get('/profile', { onRequest: [fastify.authenticate] }, async (request, reply) => {
+    try{return { message: 'Perfil do usuário', user: request.user }}
+    catch (error) {
+        reply.status(401).send({ message: 'Acesso nao autorizado' });
+    }
+  }) 
+
+  fastify.get("/users" ,
+  {onRequest: [fastify.authenticate] }
+  , async (request, reply) => {
     try {
         const [users] = await db.query('SELECT id, username, email FROM users');
         return users;
